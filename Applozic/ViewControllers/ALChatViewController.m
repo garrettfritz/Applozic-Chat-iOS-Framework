@@ -2423,6 +2423,7 @@ NSString * const ThirdPartyDetailVCNotificationChannelKey = @"ThirdPartyDetailVC
         [self.mTableView setBackgroundColor:[UIColor clearColor]];
         UIImageView * backgroundImageView = [[UIImageView alloc] initWithFrame:self.view.frame];
         backgroundImageView.image = backgroundImage;
+        [backgroundImageView setContentMode: UIViewContentModeScaleAspectFill];
         [self.view insertSubview:backgroundImageView atIndex:0];
         return;
     }
