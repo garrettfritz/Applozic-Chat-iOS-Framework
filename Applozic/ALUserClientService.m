@@ -17,7 +17,11 @@
 #import "ALUserDetailListFeed.h"
 #import "AlApplicationInfoFeed.h"
 
+NSString * const ApplozicDomain = @"Applozic";
 
+typedef NS_ENUM(NSInteger, ApplozicUserClientError) {
+    MessageKeyNotPresent = 2
+};
 
 @implementation ALUserClientService
 
@@ -115,7 +119,7 @@
     
     NSString * theUrlString = [NSString stringWithFormat:@"%@/rest/ws/message/read/conversation",KBASE_URL];
     NSString * theParamString;
-    theParamString = [NSString stringWithFormat:@"userId=%@",[contactId urlEncodeUsingEncoding:NSUTF8StringEncoding]];
+    theParamString = [NSString stringWithFormat:@"userId=%@",[contactId urlEncodeUsingNSUTF8StringEncoding]];
     NSMutableURLRequest * theRequest = [ALRequestHandler createGETRequestWithUrlString:theUrlString paramString:theParamString];
     
     [ALResponseHandler processRequest:theRequest andTag:@"MARK_CONVERSATION_AS_READ" WithCompletionHandler:^(id theJson, NSError *theError) {
@@ -413,6 +417,43 @@
     }];
 }
 
+- (void)updateUser:(NSString *)phoneNumber email:(NSString *)email ofUser:(NSString *)userId withCompletion:(void (^)(id, NSError *))completion {
+    NSString * theUrlString = [NSString stringWithFormat:@"%@/rest/ws/user/update", KBASE_URL];
+    NSMutableDictionary *dictionary = [NSMutableDictionary new];
+    if (phoneNumber) {
+        [dictionary setObject:phoneNumber forKey:@"phoneNumber"];
+    }
+    if (email) {
+        [dictionary setObject:email forKey:@"email"];
+    }
+
+    NSError *error;
+    NSData *postdata = [NSJSONSerialization dataWithJSONObject:dictionary options:0 error:&error];
+    NSString *theParamString = [[NSString alloc] initWithData:postdata encoding: NSUTF8StringEncoding];
+
+    NSMutableURLRequest * theRequest = [ALRequestHandler
+                                        createPOSTRequestWithUrlString:theUrlString
+                                        paramString:theParamString
+                                        ofUserId:userId];
+
+    [ALResponseHandler processRequest:theRequest andTag:@"UPDATE_PHONE_AND_EMAIL" WithCompletionHandler:^(id theJson, NSError *theError) {
+        ALSLog(ALLoggerSeverityInfo, @"Update user phone/email :: %@",(NSString *)theJson);
+        ALAPIResponse *apiResponse = [[ALAPIResponse alloc] initWithJSONString:(NSString *)theJson];
+        if([apiResponse.status isEqualToString:@"error"])
+        {
+            NSError * reponseError =
+            [NSError errorWithDomain:@"Applozic"
+                                code:1
+                            userInfo: [NSDictionary
+                                       dictionaryWithObject:@"error updating user"
+                                       forKey:NSLocalizedDescriptionKey]];
+            completion(nil, reponseError);
+            return;
+        }
+        completion(apiResponse.response, theError);
+    }];
+}
+
 // POST CALL
 
 -(void)subProcessUserDetailServerCallPOST:(ALUserDetailListFeed *)ob withCompletion:(void(^)(NSMutableArray * userDetailArray, NSError * theError))completionMark
@@ -430,7 +471,7 @@
     [ALResponseHandler processRequest:theRequest andTag:@"USERS_DETAILS_FOR_ONLINE_CONTACT_LIMIT_POST" WithCompletionHandler:^(id theJson, NSError *theError) {
         
         ALSLog(ALLoggerSeverityInfo, @"SERVER_RESPONSE_POST_CONTACT : %@", (NSString *)theJson);
-        if (theError)
+        if ((NSString *)theJson == nil || theError)
         {
             completionMark(nil, theError);
             ALSLog(ALLoggerSeverityError, @"ERROR_SERVER_RESPONSE_POST_CONTACT : %@", theError);
@@ -570,6 +611,38 @@
         
     }];
     
+}
+
+
+-(void)reportUserWithMessageKey:(NSString *) messageKey  withCompletion:(void (^)(ALAPIResponse *apiResponse, NSError *error))completion{
+
+    if(messageKey == nil){
+       NSError * error =  [NSError errorWithDomain:ApplozicDomain
+                            code:MessageKeyNotPresent
+                        userInfo:@{NSLocalizedDescriptionKey : @"Message key is nil"}];
+        completion(nil,error);
+        return;
+    }
+
+    NSString * theUrlString = [NSString stringWithFormat:@"%@/rest/ws/message/report?messageKey=%@", KBASE_URL, messageKey];
+
+    NSMutableURLRequest * theRequest = [ALRequestHandler createPOSTRequestWithUrlString:theUrlString paramString:nil];
+
+    [ALResponseHandler processRequest:theRequest andTag:@"REPORT_USER" WithCompletionHandler:^(id theJson, NSError *theError) {
+        if(theError){
+            ALSLog(ALLoggerSeverityError, @"Error in reporting  user  : %@", theError);
+            completion(nil, theError);
+            return;
+        }
+
+        NSString *responseString  = (NSString *)theJson;
+
+        ALSLog(ALLoggerSeverityInfo, @"RESPONSE_REPORT_USER : %@",responseString);
+
+        ALAPIResponse *apiResponse = [[ALAPIResponse alloc] initWithJSONString:responseString];
+        completion(apiResponse, theError);
+    }];
+
 }
 
 @end

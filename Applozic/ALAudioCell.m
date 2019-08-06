@@ -184,7 +184,7 @@
         {
             [self.mUserProfileImageView sd_setImageWithURL:[NSURL URLWithString:@""] placeholderImage:nil options:SDWebImageRefreshCached];
             [self.mNameLabel setHidden:NO];
-            self.mUserProfileImageView.backgroundColor = [ALColorUtility getColorForAlphabet:alMessage.to];
+            self.mUserProfileImageView.backgroundColor = [ALColorUtility getColorForAlphabet:alMessage.to colorCodes:self.alphabetiColorCodesDictionary];
         }
          CGFloat requiredHeight  = BUBBLE_PADDING_HEIGHT;
         CGFloat paypauseBUttonY = self.mBubleImageView.frame.origin.y + BUTTON_PADDING_Y ;
@@ -198,7 +198,7 @@
         {
          
             [self.mChannelMemberName setHidden:NO];
-            [self.mChannelMemberName setTextColor: [ALColorUtility getColorForAlphabet:receiverName]];
+            [self.mChannelMemberName setTextColor: [ALColorUtility getColorForAlphabet:receiverName colorCodes:self.alphabetiColorCodesDictionary]];
             [self.mChannelMemberName setText:receiverName];
    
             self.mChannelMemberName.frame = CGRectMake(self.mBubleImageView.frame.origin.x + CHANNEL_PADDING_X,
@@ -247,6 +247,7 @@
         
         if (alMessage.imageFilePath == nil)
         {
+            self.mDowloadRetryButton.alpha = 1;
             [self.mDowloadRetryButton setHidden:NO];
             [self.mDowloadRetryButton setImage:[ALUtilityClass getImageFromFramworkBundle:@"DownloadiOS.png"] forState:UIControlStateNormal];
         }
@@ -354,9 +355,20 @@
     
     if(alMessage.imageFilePath != nil && alMessage.fileMeta.blobKey)
     {
-        NSString * docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-        NSString * filePath = [docDir stringByAppendingPathComponent:alMessage.imageFilePath];
-        NSURL * soundFileURL = [NSURL fileURLWithPath:filePath];
+        NSURL * soundFileURL;
+        NSURL *documentDirectory =  [ALUtilityClass getApplicationDirectoryWithFilePath:alMessage.imageFilePath];
+        NSString *filePath = documentDirectory.path;
+
+        if([[NSFileManager defaultManager] fileExistsAtPath:filePath]){
+            soundFileURL = [NSURL fileURLWithPath:documentDirectory.path];
+        }else{
+            NSURL *appGroupDirectory =  [ALUtilityClass getAppsGroupDirectoryWithFilePath:alMessage.imageFilePath];
+
+            if(appGroupDirectory){
+                soundFileURL = [NSURL fileURLWithPath:appGroupDirectory.path];
+            }
+        }
+
         ALSLog(ALLoggerSeverityInfo, @"SOUND_URL :: %@",[soundFileURL path]);
         [self.playPauseStop setHidden:NO];
     }

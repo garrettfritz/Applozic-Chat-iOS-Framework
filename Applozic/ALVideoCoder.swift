@@ -48,6 +48,14 @@ extension AVAsset: AssetSource {
     }
 }
 
+extension AVURLAsset {
+    var fileSize: Int? {
+        let keys: Set<URLResourceKey> = [.totalFileSizeKey, .fileSizeKey]
+        let resourceValues = try? url.resourceValues(forKeys: keys)
+        return resourceValues?.fileSize ?? resourceValues?.totalFileSize
+    }
+}
+
 @objc public class ALVideoCoder: NSObject {
     
     private let koef = 100.0
@@ -117,27 +125,23 @@ extension ALVideoCoder {
             })
         }))
         var mainProgress: Progress?
-        if #available(iOS 9.0, *) {
             
-            let totalDuration = progressItems.reduce(0) { $0 + $1.durationSeconds }
-            mainProgress = Progress(totalUnitCount: Int64(totalDuration * koef))
-            
-            for item in progressItems {
-                mainProgress?.addChild(item.convertProgress, withPendingUnitCount: Int64(item.durationSeconds*koef*0.85))
-                mainProgress?.addChild(item.trimProgress, withPendingUnitCount: Int64(item.durationSeconds*koef*0.15))
-            }
-            self.mainProgress = mainProgress
+        let totalDuration = progressItems.reduce(0) { $0 + $1.durationSeconds }
+        mainProgress = Progress(totalUnitCount: Int64(totalDuration * koef))
+
+        for item in progressItems {
+            mainProgress?.addChild(item.convertProgress, withPendingUnitCount: Int64(item.durationSeconds*koef*0.85))
+            mainProgress?.addChild(item.trimProgress, withPendingUnitCount: Int64(item.durationSeconds*koef*0.15))
         }
+        self.mainProgress = mainProgress
         
         vc.present(alertView, animated: true, completion: {
-            if #available(iOS 9.0, *) {
-                let margin: CGFloat = 8.0
-                let rect = CGRect(x: margin, y: 62.0, width: alertView.view.frame.width - margin * 2.0, height: 2.0)
-                let progressView = UIProgressView(frame: rect)
-                progressView.observedProgress = mainProgress
-                progressView.tintColor = UIColor.blue
-                alertView.view.addSubview(progressView)
-            }
+            let margin: CGFloat = 8.0
+            let rect = CGRect(x: margin, y: 62.0, width: alertView.view.frame.width - margin * 2.0, height: 2.0)
+            let progressView = UIProgressView(frame: rect)
+            progressView.observedProgress = mainProgress
+            progressView.tintColor = UIColor.blue
+            alertView.view.addSubview(progressView)
         })
     }
     
@@ -172,14 +176,13 @@ extension ALVideoCoder {
     
     private func exportVideoAsset(_ asset: AssetSource, range: CMTimeRange, exportStarted: @autoclosure @escaping () -> Void, completion: @escaping (String?) -> Void) {
         
-        asset.getAVAsset { [weak self] (asset) in
-            guard let urlAsset = asset as? AVURLAsset, let strongSelf = self else {
-                exportStarted()
+        asset.getAVAsset { [weak self] (inAsset) in
+            guard let asset = inAsset, let strongSelf = self else {
                 completion(nil)
                 return
             }
             
-            var currentDuration = CMTimeGetSeconds(urlAsset.duration)
+            var currentDuration = CMTimeGetSeconds(asset.duration)
             let requestedDuration = CMTimeGetSeconds(range.duration)
 
             if currentDuration > requestedDuration {
@@ -197,26 +200,33 @@ extension ALVideoCoder {
             try? fileManager.removeItem(at: trimmedURL)
             
             let convertProgress = Progress(totalUnitCount: Int64(currentDuration * Double(strongSelf.koef)))
-            let session = strongSelf.trimVideo(videoAsset: urlAsset, range: range, atURL: trimmedURL) { trimmedAsset in
+            let session = strongSelf.trimVideo(videoAsset: asset, range: range, atURL: trimmedURL) { trimmedAsset in
                 
                 guard let newAsset = trimmedAsset else {
                     completion(nil)
+                    return
+                }
+
+                /// Converting video to low quality takes too much memory
+                /// which gets worse when the video size is large.
+                if let size = newAsset.fileSize, size >= (5 * 1024 * 1024) {
+                    completion(trimmedURL.path)
                     return
                 }
                 
                 let filename = String(format: "VID-%f.mp4", Date().timeIntervalSince1970*1000)
                 let documentsUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
                 let filePath = documentsUrl.absoluteString.appending(filename)
-                
+
                 guard var fileurl = URL(string: filePath) else {
                     completion(nil)
                     return
                 }
                 fileurl = fileurl.standardizedFileURL
-                
+
                 // remove any existing file at that location
                 try? FileManager.default.removeItem(at: fileurl)
-                
+
                 ALVideoCoder.convertVideoToLowQuailtyWithInputURL(videoAsset: newAsset, outputURL: fileurl, progress: convertProgress, started: { writer in
                     self?.exportingVideoSessions.append(writer)
                 }, completed: {
@@ -237,7 +247,7 @@ extension ALVideoCoder {
     }
     
     // video processing
-    private func trimVideo(videoAsset: AVURLAsset, range: CMTimeRange, atURL:URL, completed: @escaping (AVURLAsset?) -> Void) -> AVAssetExportSession {
+    private func trimVideo(videoAsset: AVAsset, range: CMTimeRange, atURL:URL, completed: @escaping (AVURLAsset?) -> Void) -> AVAssetExportSession {
         
         let exportSession = AVAssetExportSession(asset: videoAsset, presetName: AVAssetExportPresetPassthrough)!
         exportSession.outputURL = atURL
@@ -269,7 +279,7 @@ extension ALVideoCoder {
         
         //tracks
         let videoTrack = videoAsset.tracks(withMediaType: .video)[0]
-        let audioTrack = videoAsset.tracks(withMediaType: .audio)[0]
+        let audioTrack = videoAsset.tracks(withMediaType: .audio).first
         
         // video output settings
         let videoReaderSettings: [String : Any] = [
@@ -294,8 +304,10 @@ extension ALVideoCoder {
         
         // video/audio asset outputs
         let videoAssetReaderOutput = AVAssetReaderTrackOutput(track: videoTrack, outputSettings: videoReaderSettings)
-        let audioAssetReaderOutput = AVAssetReaderTrackOutput(track: audioTrack, outputSettings: outputSettings)
-        
+        var audioAssetReaderOutput: AVAssetReaderTrackOutput?
+        if let audio = audioTrack {
+            audioAssetReaderOutput = AVAssetReaderTrackOutput(track: audio, outputSettings: outputSettings)
+        }
         // setup asset readers
         let assetReader = try! AVAssetReader(asset: videoAsset)
         
@@ -303,10 +315,9 @@ extension ALVideoCoder {
         if assetReader.canAdd(videoAssetReaderOutput) {
             assetReader.add(videoAssetReaderOutput)
         }
-        if assetReader.canAdd(audioAssetReaderOutput) {
-            assetReader.add(audioAssetReaderOutput)
+        if let audioOutput = audioAssetReaderOutput, assetReader.canAdd(audioOutput) {
+            assetReader.add(audioOutput)
         }
-        
         
         // video asset input settings
         let videoSize = videoTrack.naturalSize
@@ -380,7 +391,7 @@ extension ALVideoCoder {
         audioAssetWriterInput.requestMediaDataWhenReady(on: processingQueue2) {
             while audioAssetWriterInput.isReadyForMoreMediaData {
                 
-                if let sampleBuffer = audioAssetReaderOutput.copyNextSampleBuffer() {
+                if let sampleBuffer = audioAssetReaderOutput?.copyNextSampleBuffer() {
                     audioAssetWriterInput.append(sampleBuffer)
                 } else {
                     audioAssetWriterInput.markAsFinished()

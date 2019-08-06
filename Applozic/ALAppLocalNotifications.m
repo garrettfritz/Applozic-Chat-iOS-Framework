@@ -19,6 +19,8 @@
 #import "ALUserService.h"
 #import "ALMQTTConversationService.h"
 #import "ALGroupDetailViewController.h"
+#import "ALConversationService.h"
+#import "ALApplozicSettings.h"
 
 @implementation ALAppLocalNotifications
 
@@ -48,6 +50,8 @@
 
 -(void)dataConnectionHandler
 {
+    [ALApplozicSettings setupSuiteAndMigrate];
+
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:)
                                                  name:AL_kReachabilityChangedNotification object:nil];
     
@@ -177,8 +181,10 @@
             ALSLog(ALLoggerSeverityInfo, @"========== IF internetConnectionReach ============");
             [self proactivelyConnectMQTT];
             [ALMessageService syncMessages];
-            [ALMessageService processPendingMessages];
-            
+
+            ALMessageService *messageService = [[ALMessageService alloc]init];
+            [messageService processPendingMessages];
+
             ALUserService *userService = [ALUserService new]; 
             [userService blockUserSync: [ALUserDefaultsHandler getUserBlockLastTimeStamp]];
 
@@ -247,7 +253,19 @@
     if([updateUI isEqualToNumber:[NSNumber numberWithInt:APP_STATE_INACTIVE]])
     {
         ALSLog(ALLoggerSeverityInfo, @"App launched from Background....Directly opening view from %@",self.dict);
-        [self thirdPartyNotificationTap1:self.contactId withGroupId:groupId withConversationId: conversationId]; // Directly launching Chat
+
+        if(conversationId != nil){
+            ALConversationService * conversationService = [[ALConversationService alloc]init];
+            [conversationService fetchTopicDetails:conversationId withCompletion:^(NSError *error, ALConversationProxy *proxy) {
+                if(error == nil){
+                    [self thirdPartyNotificationTap1:self.contactId withGroupId:groupId withConversationId: conversationId]; //
+                }else{
+                    ALSLog(ALLoggerSeverityInfo, @"Error in fetching conversation :: %@",error);
+                }
+            }];
+        }else{
+            [self thirdPartyNotificationTap1:self.contactId withGroupId:groupId withConversationId: conversationId]; // Directly launching Chat
+        }
         return;
     }
     
@@ -268,7 +286,20 @@
 
                 }];
             }else{
-                [ALUtilityClass thirdDisplayNotificationTS:alertValue andForContactId:self.contactId withGroupId:groupId withConversationId:conversationId delegate:self];
+                if(conversationId != nil){
+                    ALConversationService * conversationService = [[ALConversationService alloc]init];
+                    [conversationService fetchTopicDetails:conversationId withCompletion:^(NSError *error, ALConversationProxy *proxy) {
+                        if(error == nil){
+                            [ALUtilityClass thirdDisplayNotificationTS:alertValue andForContactId:self.contactId withGroupId:groupId withConversationId:conversationId delegate:self];
+
+                        }else{
+                            ALSLog(ALLoggerSeverityInfo, @"Error in fetching conversation :: %@",error);
+                        }
+                    }];
+
+                }else{
+                    [ALUtilityClass thirdDisplayNotificationTS:alertValue andForContactId:self.contactId withGroupId:groupId withConversationId:conversationId delegate:self];
+                }
             }
         }
         else

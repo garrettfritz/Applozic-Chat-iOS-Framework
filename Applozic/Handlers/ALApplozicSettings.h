@@ -137,11 +137,27 @@ static NSString *const SLIDE_TO_CANCEL_TEXT_COLOR = @"com.applozic.SLIDE_TO_CANC
 static NSString *const AUDIO_RECORDING_TEXT_COLOR = @"com.applozic.AUDIO_RECORDING_TEXT_COLOR";
 static NSString *const AUDIO_RECORD_VIEW_FONT = @"com.applozic.AUDIO_VIEW_FONT";
 static NSString *const MEDIA_SELECT_OPTIONS = @"com.applozic.MEDIA_SELECT_OPTIONS";
+static NSString *const AL_CHANNEL_ACTION_MESSAGE_BG_COLOR = @"com.applozic.AL_CHANNEL_ACTION_MESSAGE_BG_COLOR";
+static NSString *const AL_CHANNEL_ACTION_MESSAGE_TEXT_COLOR = @"com.applozic.AL_CHANNEL_ACTION_MESSAGE_TEXT_COLOR";
+static NSString *const AL_ALPHABETIC_COLOR_CODES = @"com.applozic.AL_ALPHABETIC_COLOR_CODES";
+static NSString *const DISABLE_UNBLOCK_FROM_CHAT = @"com.applozic.DISABLE_UNBLOCK_FROM_CHAT";
+static NSString *const AL_SHARE_EXTENSION = @"com.applozic.AL_SHARE_EXTENSION";
+static NSString *const AL_USER_DEFAULTS_GROUP_MIGRATION = @"com.applozic.AL_USER_DEFAULTS_GROUP_MIGRATION";
+static NSString *const AL_USER_DEFAULTS_MIGRATION = @"com.applozic.AL_USER_DEFAULTS_MIGRATION";
+static NSString *const AL_DEFAULT_APP_GROUP = @"group.com.applozic.share";
+static NSString *const AL_DOCUMENT_OPTION = @"com.applozic.AL_DOCUMENT_OPTION";
+static NSString *const AL_SENT_MESSAGE_CONTACT_BUTTON = @"com.applozic.AL_SENT_MESSAGE_CONTACT_BUTTON";
+static NSString *const AL_SENT_CONTACT_MSG_LABEL_COLOR = @"com.applozic.AL_SENT_CONTACT_MSG_LABEL_COLOR";
+static NSString *const AL_RECEIVED_CONTACT_MSG_LABEL_COLOR = @"com.applozic.AL_RECEIVED_CONTACT_MSG_LABEL_COLOR";
+static NSString *const AL_IMAGE_PREVIEW_BACKGROUND_COLOR = @"com.applozic.AL_IMAGE_PREVIEW_BACKGROUND_COLOR";
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
 @interface ALApplozicSettings : NSObject
+
+@property (strong, nonatomic) NSUserDefaults * userDefaults;
+
 
 +(void)setFontFace:(NSString *)fontFace;
 +(NSString *)getFontFace;
@@ -552,5 +568,36 @@ static NSString *const MEDIA_SELECT_OPTIONS = @"com.applozic.MEDIA_SELECT_OPTION
 
 +(void)setTextColorForMessageTextView:(UIColor *)txtColor;
 +(UIColor *)getTextColorForMessageTextView;
+
++(void)setChannelActionMessageBgColor:(UIColor *)txtColor;
++(UIColor *)getChannelActionMessageBgColor;
+
++(void)setChannelActionMessageTextColor:(UIColor *)txtColor;
++(UIColor *)getChannelActionMessageTextColor;
+
++(void)setUserIconFirstNameColorCodes:(NSMutableDictionary*)nsMutableDictionary;
++(NSMutableDictionary*) getUserIconFirstNameColorCodes;
+
+// Enable/Disable unblock users from sendMessageTextView
++(void) setIsUnblockInChatDisabled:(BOOL)flag;
++(BOOL) isUnblockInChatDisabled;
+
++(void)setupSuiteAndMigrate;
++(NSString *)getShareExtentionGroup;
+
++(BOOL)isDocumentOptionEnabled;
++(void)enableDocumentOption:(BOOL)flag;
+
++(BOOL)isAddContactButtonForSenderDisabled;
++(void)disableAddContactButtonForSender;
+
++(void)setColorForSentContactMsgLabel:(UIColor *)sentContactLabelMsgColor;
++(void)setColorForReceivedContactMsgLabel:(UIColor *)receivedMsgColor;
+
++(UIColor *)getSentContactMsgLabelColor;
++(UIColor *)getReceivedContactMsgLabelColor;
+
++(void)setImagePreviewBackgroundColor:(UIColor *)color;
++(UIColor *)getImagePreviewBackgroundColor;
 
 @end

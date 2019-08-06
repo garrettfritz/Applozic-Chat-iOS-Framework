@@ -10,6 +10,7 @@
 #import "ALDBHandler.h"
 #import "ALConstant.h"
 #import "DB_Message.h"
+#import "SearchResultCache.h"
 
 @implementation ALContactDBService
 
@@ -113,11 +114,9 @@
     for (ALContact *contact in contacts) {
         
         result = [self updateContact:contact];
-        
+
         if (!result) {
-            
-            ALSLog(ALLoggerSeverityInfo, @"Failure to update the contacts");
-            break;
+            ALSLog(ALLoggerSeverityInfo, @"Failure to update the contacts %@",contact.userId);
         }
     }
     
@@ -237,7 +236,7 @@
         result = [self addContact:contact];
 
         if (!result) {
-            break;
+            ALSLog(ALLoggerSeverityInfo, @"Failure to add/update the contacts %@",contact.userId);
         }
     }
 
@@ -281,6 +280,10 @@
 {
     if(!value){
         return nil;
+    }
+    ALContact *cachedContact = [[SearchResultCache shared] getContactWithId: value];
+    if (cachedContact != nil) {
+        return cachedContact;
     }
     
     DB_CONTACT *dbContact = [self getContactByKey:key value:value];

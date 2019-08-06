@@ -8,10 +8,11 @@
 
 #import "ALVideoCell.h"
 #import "UIImageView+WebCache.h"
-#import <MediaPlayer/MediaPlayer.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "ALMessageInfoViewController.h"
 #import "ALChatViewController.h"
+#import <AVKit/AVKit.h>
+
 
 // Constants
 #define MT_INBOX_CONSTANT "4"
@@ -167,7 +168,7 @@
         {
             [self.mChannelMemberName setHidden:NO];
             [self.mChannelMemberName setText:receiverName];
-            [self.mChannelMemberName setTextColor: [ALColorUtility getColorForAlphabet:receiverName]];
+            [self.mChannelMemberName setTextColor: [ALColorUtility getColorForAlphabet:receiverName colorCodes:self.alphabetiColorCodesDictionary]];
             self.mChannelMemberName.frame = CGRectMake(self.mBubleImageView.frame.origin.x + CHANNEL_PADDING_X,
                                                        self.mBubleImageView.frame.origin.y + CHANNEL_PADDING_Y,
                                                        self.mBubleImageView.frame.size.width , CHANNEL_PADDING_HEIGHT);
@@ -227,7 +228,7 @@
         {
             [self.mUserProfileImageView sd_setImageWithURL:[NSURL URLWithString:@""] placeholderImage:nil options:SDWebImageRefreshCached];
             [self.mNameLabel setHidden:NO];
-            self.mUserProfileImageView.backgroundColor = [ALColorUtility getColorForAlphabet:receiverName];
+            self.mUserProfileImageView.backgroundColor = [ALColorUtility getColorForAlphabet:receiverName colorCodes:self.alphabetiColorCodesDictionary];
         }
         
         [self.mDowloadRetryButton setFrame:CGRectMake(self.mImageView.frame.origin.x + self.mImageView.frame.size.width/2.0 - DOWNLOAD_RETRY_X,
@@ -359,9 +360,19 @@
     
     if(alMessage.imageFilePath != nil && alMessage.fileMeta.blobKey)
     {
-        NSString * docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
-        NSString * filePath = [docDir stringByAppendingPathComponent:alMessage.imageFilePath];
-        self.videoFileURL = [NSURL fileURLWithPath:filePath];
+
+        NSURL *documentDirectory =  [ALUtilityClass getApplicationDirectoryWithFilePath:alMessage.imageFilePath];
+        NSString *filePath = documentDirectory.path;
+
+        if([[NSFileManager defaultManager] fileExistsAtPath:filePath]){
+            self.videoFileURL  = [NSURL fileURLWithPath:filePath];
+        }else{
+            NSURL *appGroupDirectory =  [ALUtilityClass getAppsGroupDirectoryWithFilePath:alMessage.imageFilePath];
+            if(appGroupDirectory){
+                self.videoFileURL  = [NSURL fileURLWithPath:appGroupDirectory.path];
+            }
+        }
+
         [self.mImageView addGestureRecognizer:self.tapper];
         [self.videoPlayFrontView setHidden:NO];
         [self setVideoThumbnail:filePath];
@@ -463,11 +474,9 @@
 
 -(void)videoFullScreen:(UITapGestureRecognizer *)sender
 {
-    MPMoviePlayerViewController * videoViewController = [[MPMoviePlayerViewController alloc] initWithContentURL:self.videoFileURL];
-    [videoViewController.moviePlayer setFullscreen:YES];
-    [videoViewController.moviePlayer setScalingMode: MPMovieScalingModeAspectFit];
-    
-    [self.delegate showVideoFullScreen:videoViewController];
+    AVPlayerViewController * avPlayerViewController = [[AVPlayerViewController alloc] init];
+    avPlayerViewController.player = [AVPlayer playerWithURL:self.videoFileURL];
+    [self.delegate showVideoFullScreen:avPlayerViewController];
 }
 
 -(void) cancelAction

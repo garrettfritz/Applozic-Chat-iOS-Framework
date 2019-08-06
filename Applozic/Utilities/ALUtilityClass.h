@@ -61,5 +61,10 @@
 +(void)setImageFromURL:(NSString *)urlString andImageView:(UIImageView *)imageView;
 +(NSString *)stringFromTimeInterval:(NSTimeInterval)interval;
 +(UIImage *)getVOIPMessageImage:(ALMessage *)alMessage;
-
++(NSString *)getFileExtensionWithFileName:(NSString *)fileName;
++(NSURL *)getDocumentDirectory;
++(NSURL *)getAppsGroupDirectory;
++(NSURL *)getAppsGroupDirectoryWithFilePath:(NSString *) path;
++(NSURL *)getApplicationDirectoryWithFilePath:(NSString*) path;
++(NSData *)compressImage:(NSData *) data;
 @end
