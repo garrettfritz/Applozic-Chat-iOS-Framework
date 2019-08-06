@@ -16,6 +16,7 @@
 @optional
 
 -(void)handleCustomActionFromMsgVC:(UIViewController *)chatView andWithMessage:(ALMessage *)alMessage;
+-(void)handleProfileActionFromMsgVC:(ALMessage *)alMessage;
 
 @end
 
@@ -54,7 +55,7 @@
 
 /*****************
  SUB_GROUP LAUNCH
-*****************/
+ *****************/
 
 @property (strong, nonatomic) NSNumber *parentGroupKey;
 @property (strong, nonatomic) NSMutableArray *childGroupList;
