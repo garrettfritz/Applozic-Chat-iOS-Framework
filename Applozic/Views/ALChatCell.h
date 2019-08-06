@@ -30,6 +30,7 @@
 -(void)processMessageReply:(ALMessage *) message;
 -(void)scrollToReplyMessage:(ALMessage*)message;
 -(void)handleTapGestureForKeyBoard;
+-(void)handleTapGestureForProfile;
 
 @end
 

@@ -4626,6 +4626,13 @@ style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
 
 }
 
+-(void)handleTapGestureForProfile
+{
+    
+    
+    
+}
+
 -(void)proccessReloadAndForwardMessage:(ALMessage *)alMessage{
 
     self.channelKey = alMessage.groupId;

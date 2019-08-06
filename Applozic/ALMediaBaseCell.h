@@ -46,6 +46,7 @@
 -(void) processTapGesture:(ALMessage *)alMessage;
 -(void) processForwardMessage:(ALMessage *) message;
 -(void) handleTapGestureForKeyBoard;
+-(void) handleTapGestureForProfile;
 
 @optional
 

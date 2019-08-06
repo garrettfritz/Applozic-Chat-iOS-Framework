@@ -56,7 +56,9 @@
 @implementation ALChatCell
 {
     CGFloat msgFrameHeight;
-    UITapGestureRecognizer * tapForCustomView, *tapGestureRecognizerForCell;
+    UITapGestureRecognizer * tapForCustomView, *tapForProfile, *tapGestureRecognizerForCell;
+    
+    
     
 }
 
@@ -139,6 +141,10 @@
         
         tapForCustomView = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(processTapGesture)];
         tapForCustomView.numberOfTapsRequired = 1;
+        
+        tapForProfile = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(processProfileTapped)];
+        tapForProfile.numberOfTapsRequired = 1;
+        
         
         UITapGestureRecognizer *tapForOpenChat = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(processOpenChat)];
         tapForOpenChat.numberOfTapsRequired = 1;
@@ -459,6 +465,9 @@
     
     /*    ====================================== END =================================  */
     
+    [self.mUserProfileImageView setUserInteractionEnabled:YES];
+    [self.mUserProfileImageView addGestureRecognizer:tapForProfile];
+    
     self.mMessageLabel.font = [self getDynamicFontWithDefaultSize:[ALApplozicSettings getChatCellTextFontSize] fontName:[ALApplozicSettings getFontFace]];
     if(alMessage.contentType == ALMESSAGE_CONTENT_TEXT_HTML)
     {
@@ -635,6 +644,11 @@
     
 }
 
+-(void) processProfileTapped
+{
+    [self.delegate handleTapGestureForProfile];
+    
+}
 -(void)processTapGesture
 {
     [self.delegate processALMessage:self.mMessage];
