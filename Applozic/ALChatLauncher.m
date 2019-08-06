@@ -255,6 +255,15 @@
     
     
 }
+
+-(void)handleProfileActionFromChatVC:(ALMessage *)alMessage
+{
+    
+    [self.chatLauncherDelegate handleTapGestureForProfile:alMessage];
+    
+    
+}
+
 //  WHEN FLOW IS FROM DIRECT CHATVIEW
 -(void)handleCustomActionFromChatVC:(UIViewController *)chatViewController andWithMessage:(ALMessage *)alMessage
 {
