@@ -106,7 +106,7 @@
         
         self.mMessageLabel = [[ALHyperLabel alloc] init];
         self.mMessageLabel.numberOfLines = 0;
-
+        
         NSString *fontName = [ALUtilityClass parsedALChatCostomizationPlistForKey:APPLOZIC_CHAT_FONTNAME];
         
         if (!fontName) {
@@ -153,16 +153,16 @@
         
         self.hyperLinkArray = [NSMutableArray new];
         
-       if ([UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft) {
-           
-           self.transform = CGAffineTransformMakeScale(-1.0, 1.0);
-           self.replyParentView.transform = CGAffineTransformMakeScale(-1.0, 1.0);
-           self.mNameLabel.transform = CGAffineTransformMakeScale(-1.0, 1.0);
-           self.mChannelMemberName.transform = CGAffineTransformMakeScale(-1.0, 1.0);
-           self.mMessageLabel.transform = CGAffineTransformMakeScale(-1.0, 1.0);
-           self.mDateLabel.transform = CGAffineTransformMakeScale(-1.0, 1.0);
-           self.mMessageStatusImageView.transform = CGAffineTransformMakeScale(-1.0, 1.0);
-       }
+        if ([UIApplication sharedApplication].userInterfaceLayoutDirection == UIUserInterfaceLayoutDirectionRightToLeft) {
+            
+            self.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+            self.replyParentView.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+            self.mNameLabel.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+            self.mChannelMemberName.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+            self.mMessageLabel.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+            self.mDateLabel.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+            self.mMessageStatusImageView.transform = CGAffineTransformMakeScale(-1.0, 1.0);
+        }
     }
     
     UITapGestureRecognizer * menuTapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(proccessTapForMenu:)];
@@ -264,7 +264,7 @@
         CGFloat requiredBubbleWidth = theTextSize.width + BUBBLE_PADDING_WIDTH;
         CGFloat requiredBubbleHeight =  theTextSize.height + BUBBLE_PADDING_HEIGHT;
         
-
+        
         self.mBubleImageView.frame = CGRectMake(self.mUserProfileImageView.frame.size.width + 13,
                                                 0, requiredBubbleWidth,
                                                 requiredBubbleHeight);
@@ -273,7 +273,7 @@
         self.mBubleImageView.layer.shadowOffset = CGSizeMake(0, 2);
         self.mBubleImageView.layer.shadowRadius = 1;
         self.mBubleImageView.layer.masksToBounds = NO;
-
+        
         CGFloat mMessageLabelY = self.mBubleImageView.frame.origin.y + MESSAGE_PADDING_Y;
         
         if([alMessage getGroupId])
@@ -287,7 +287,7 @@
                 theTextSize.width = receiverNameSize.width+5;
                 requiredBubbleWidth = theTextSize.width + CHANNEL_PADDING_X;
             }
-        
+            
             
             self.mChannelMemberName.frame = CGRectMake(self.mBubleImageView.frame.origin.x + CHANNEL_PADDING_X,
                                                        self.mBubleImageView.frame.origin.y + CHANNEL_PADDING_Y,
@@ -319,7 +319,7 @@
         self.mMessageLabel.frame = CGRectMake(self.mChannelMemberName.frame.origin.x,
                                               self.mChannelMemberName.frame.origin.y + self.mChannelMemberName.frame.size.height + MESSAGE_PADDING_Y_GRP,
                                               theTextSize.width, theTextSize.height);
-
+        
         
         self.mMessageLabel.frame = CGRectMake(self.mBubleImageView.frame.origin.x + MESSAGE_PADDING_X ,
                                               mMessageLabelY,
@@ -334,15 +334,15 @@
                                            theDateSize.width + DATE_PADDING_WIDTH, DATE_HEIGHT);
         
         self.mDateLabel.textAlignment = NSTextAlignmentLeft;
-
-
+        
+        
         if(alMessage.groupId){
-
+            
             self.mChannelMemberName.frame = CGRectMake(self.mBubleImageView.frame.origin.x + CHANNEL_PADDING_X,
                                                        self.mBubleImageView.frame.origin.y + CHANNEL_PADDING_Y,
                                                        (self.mBubleImageView.frame.size.width -10), CHANNEL_PADDING_HEIGHT);
         }
-
+        
         if(alContact.contactImageUrl)
         {
             ALMessageClientService * messageClientService = [[ALMessageClientService alloc]init];
@@ -374,7 +374,7 @@
         CGFloat requiredBubbleWidth = theTextSize.width + BUBBLE_PADDING_X_OUTBOX;
         CGFloat requiredBubbleHeight =  theTextSize.height + BUBBLE_PADDING_HEIGHT;
         
-
+        
         
         self.mBubleImageView.frame = CGRectMake((viewSize.width - theTextSize.width - BUBBLE_PADDING_X_OUTBOX) , 0,
                                                 requiredBubbleWidth+10,
@@ -385,14 +385,14 @@
         self.mBubleImageView.layer.shadowRadius = 1;
         self.mBubleImageView.layer.masksToBounds = NO;
         CGFloat mMessageLabelY = self.mBubleImageView.frame.origin.y + MESSAGE_PADDING_Y;
-
+        
         if(alMessage.isAReplyMessage)
         {
             [self processReplyOfChat:alMessage andViewSize:viewSize];
             mMessageLabelY = mMessageLabelY + self.replyParentView.frame.size.height ;
             requiredBubbleHeight = requiredBubbleHeight + self.replyParentView.frame.size.height;
             requiredBubbleWidth = self.replyParentView.frame.size.width + 10;
-
+            
         }
         
         //resize bubble
@@ -422,15 +422,15 @@
         self.mMessageStatusImageView.frame = CGRectMake(self.mDateLabel.frame.origin.x + self.mDateLabel.frame.size.width,
                                                         self.mDateLabel.frame.origin.y,
                                                         MSG_STATUS_WIDTH, MSG_STATUS_HEIGHT);
-
         
- 
+        
+        
         
         
     }
     
     if ([alMessage isSentMessage] && ![alMessage isChannelContentTypeMessage] && ((self.channel && self.channel.type != OPEN) || self.contact)) {
-
+        
         self.mMessageStatusImageView.hidden = NO;
         NSString * imageName;
         
@@ -489,7 +489,7 @@
                                                     NSForegroundColorAttributeName :[UIColor blueColor],
                                                     NSUnderlineStyleAttributeName : [NSNumber numberWithInt:NSUnderlineStyleThick]
                                                     };
-    
+        
         if (self.mMessage.message){
             self.mMessageLabel.attributedText = [[NSAttributedString alloc] initWithString:self.mMessage.message attributes:attrs];
         }
@@ -497,31 +497,31 @@
     }
     
     
-
+    
     
     return self;
     
 }
 
 -(void) proccessTapForMenu:(id)tap{
-
+    
     [self processKeyBoardHideTap];
-
-     UIMenuItem * messageForward = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"forwardOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Forward", @"") action:@selector(messageForward:)];
-       UIMenuItem * messageReply = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"replyOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Reply", @"") action:@selector(messageReply:)];
-
+    
+    UIMenuItem * messageForward = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"forwardOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Forward", @"") action:@selector(messageForward:)];
+    UIMenuItem * messageReply = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"replyOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Reply", @"") action:@selector(messageReply:)];
+    
     if ([self.mMessage.type isEqualToString:@MT_INBOX_CONSTANT]){
-
+        
         [[UIMenuController sharedMenuController] setMenuItems: @[messageForward,messageReply]];
-
+        
     }else if ([self.mMessage.type isEqualToString:@MT_OUTBOX_CONSTANT]){
-
+        
         UIMenuItem * msgInfo = [[UIMenuItem alloc] initWithTitle:NSLocalizedStringWithDefaultValue(@"infoOptionTitle", [ALApplozicSettings getLocalizableName],[NSBundle mainBundle], @"Info", @"") action:@selector(msgInfo:)];
-
+        
         [[UIMenuController sharedMenuController] setMenuItems: @[msgInfo,messageReply,messageForward]];
     }
-       [[UIMenuController sharedMenuController] update];
-
+    [[UIMenuController sharedMenuController] update];
+    
 }
 
 -(void)dateTextSetupForALMessage:(ALMessage *)alMessage withViewSize:(CGSize)viewSize andTheTextSize:(CGSize)theTextSize
@@ -646,7 +646,7 @@
 
 -(void) processProfileTapped
 {
-    [self.delegate handleTapGestureForProfile];
+    [self.delegate handleTapGestureForProfile:self.mMessage];
     
 }
 -(void)processTapGesture

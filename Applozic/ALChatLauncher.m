@@ -73,7 +73,7 @@
 }
 
 /**
- * Use this to launch individual chat using conversationId. 
+ * Use this to launch individual chat using conversationId.
  */
 -(void)launchIndividualChat:(NSString *)userId withGroupId:(NSNumber*)groupID withConversationId:(NSNumber *)conversationId
     andViewControllerObject:(UIViewController *)viewController andWithText:(NSString *)text
@@ -134,28 +134,28 @@
     
     ALChannelService * channelService  =  [ALChannelService new];
     [channelService getChannelInformation:groupID orClientChannelKey:nil withCompletion:^(ALChannel *alChannel) {
-                               //Channel information
-                               
-                               
-       ALSLog(ALLoggerSeverityInfo, @" alChannel ###%@ ", alChannel.name);
-       UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"Applozic"
-                                   
-                                                            bundle:[NSBundle bundleForClass:ALChatViewController.class]];
-       
-       ALChatViewController *chatView = (ALChatViewController *) [storyboard instantiateViewControllerWithIdentifier:@"ALChatViewController"];
-       
-       chatView.channelKey = groupID;
-       chatView.text = text;
-       chatView.contactIds = userId;
-       chatView.individualLaunch = YES;
-       chatView.displayName = displayName;
-       chatView.chatViewDelegate = self;
-       
-       UINavigationController *conversationViewNavController = [self createNavigationControllerForVC:chatView];;
-       conversationViewNavController.modalTransitionStyle = UIModalTransitionStyleCrossDissolve ;
-       [viewController presentViewController:conversationViewNavController animated:YES completion:nil];
-       
-   }];
+        //Channel information
+        
+        
+        ALSLog(ALLoggerSeverityInfo, @" alChannel ###%@ ", alChannel.name);
+        UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"Applozic"
+                                    
+                                                             bundle:[NSBundle bundleForClass:ALChatViewController.class]];
+        
+        ALChatViewController *chatView = (ALChatViewController *) [storyboard instantiateViewControllerWithIdentifier:@"ALChatViewController"];
+        
+        chatView.channelKey = groupID;
+        chatView.text = text;
+        chatView.contactIds = userId;
+        chatView.individualLaunch = YES;
+        chatView.displayName = displayName;
+        chatView.chatViewDelegate = self;
+        
+        UINavigationController *conversationViewNavController = [self createNavigationControllerForVC:chatView];;
+        conversationViewNavController.modalTransitionStyle = UIModalTransitionStyleCrossDissolve ;
+        [viewController presentViewController:conversationViewNavController animated:YES completion:nil];
+        
+    }];
 }
 
 
@@ -164,7 +164,7 @@
     
     UIStoryboard* storyboard = [UIStoryboard storyboardWithName:@"Applozic" bundle:[NSBundle bundleForClass:ALChatViewController.class]];
     UITabBarController *theTabBar = [storyboard instantiateViewControllerWithIdentifier:@"messageTabBar"];
-
+    
     //              To Lunch with different Animation...
     //theTabBar.modalTransitionStyle=UIModalTransitionStyleCrossDissolve ;
     
@@ -244,14 +244,24 @@
 {
     id launcherDelegate = NSClassFromString([ALApplozicSettings getCustomClassName]);
     [launcherDelegate handleCustomAction:chatView andWithMessage:alMessage];
+    
+    
 }
 
+- (void)handleProfileActionFromMsgVC:(ALMessage *)alMessage
+{
+    
+    [self.chatLauncherDelegate handleTapGestureForProfile:alMessage];
+    
+    
+}
 //  WHEN FLOW IS FROM DIRECT CHATVIEW
 -(void)handleCustomActionFromChatVC:(UIViewController *)chatViewController andWithMessage:(ALMessage *)alMessage
 {
     id launcherDelegate = NSClassFromString([ALApplozicSettings getCustomClassName]);
     [launcherDelegate handleCustomAction:chatViewController andWithMessage:alMessage];
 }
+
 
 
 -(void)launchChatListWithCustomNavigationBar:(UIViewController *)viewController
@@ -317,7 +327,7 @@
     contactVC.directContactVCLaunch = YES;
     contactVC.alMessage = alMessage;
     contactVC.forGroup = [NSNumber numberWithInt:REGULAR_CONTACTS];
-
+    
     UINavigationController * conversationViewNavController = [self createNavigationControllerForVC:contactVC];
     conversationViewNavController.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
     [viewController presentViewController:conversationViewNavController animated:YES completion:nil];

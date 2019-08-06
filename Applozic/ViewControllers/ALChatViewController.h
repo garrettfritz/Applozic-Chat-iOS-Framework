@@ -31,6 +31,7 @@ extern NSString * const ThirdPartyDetailVCNotificationChannelKey;
 
 @optional
 -(void)handleCustomActionFromChatVC:(UIViewController *)chatViewController andWithMessage:(ALMessage *)alMessage;
+-(void)handleProfileActionFromChatVC:(ALMessage *)alMessage;
 
 @end
 
