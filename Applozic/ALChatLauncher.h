@@ -14,7 +14,8 @@
 @protocol ALChatLauncherDelegate <NSObject>
 
 +(void)handleCustomAction:(UIViewController *)chatView andWithMessage:(ALMessage *)alMessage;
--(void)handleTapGestureForProfile:(ALMessage*)message;
+-(void)handleTapGestureForProfile:(UIViewController *)chatView andWithMessage:(ALMessage *)alMessage;
+
 
 @end
 

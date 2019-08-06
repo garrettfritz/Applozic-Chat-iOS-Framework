@@ -248,18 +248,18 @@
     
 }
 
-- (void)handleProfileActionFromMsgVC:(ALMessage *)alMessage
+- (void)handleProfileActionFromMsgVC:(UIViewController *)chatView andWithMessage:(ALMessage *)alMessage
 {
     
-    [self.chatLauncherDelegate handleTapGestureForProfile:alMessage];
+    [self.chatLauncherDelegate handleTapGestureForProfile:chatView andWithMessage:alMessage];
     
     
 }
 
--(void)handleProfileActionFromChatVC:(ALMessage *)alMessage
+-(void)handleProfileActionFromChatVC:(UIViewController *)chatView andWithMessage:(ALMessage *)alMessage
 {
     
-    [self.chatLauncherDelegate handleTapGestureForProfile:alMessage];
+    [self.chatLauncherDelegate handleTapGestureForProfile:chatView andWithMessage:alMessage];
     
     
 }

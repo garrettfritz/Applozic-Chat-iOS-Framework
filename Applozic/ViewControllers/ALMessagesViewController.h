@@ -16,7 +16,7 @@
 @optional
 
 -(void)handleCustomActionFromMsgVC:(UIViewController *)chatView andWithMessage:(ALMessage *)alMessage;
--(void)handleProfileActionFromMsgVC:(ALMessage *)alMessage;
+-(void)handleProfileActionFromChatVC:(UIViewController *)chatView andWithMessage:(ALMessage *)alMessage;
 
 @end
 

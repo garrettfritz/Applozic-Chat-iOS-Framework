@@ -4629,7 +4629,7 @@ ALSoundRecorderProtocol, ALCustomPickerDelegate,ALImageSendDelegate,UIDocumentPi
 -(void)handleTapGestureForProfile:(ALMessage *)alMessage
 {
     
-    [self.chatViewDelegate handleProfileActionFromChatVC:alMessage];
+    [self.chatViewDelegate handleProfileActionFromChatVC:self andWithMessage:alMessage];
     
 }
 

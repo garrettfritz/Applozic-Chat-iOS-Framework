@@ -1630,13 +1630,14 @@
 -(void)handleCustomActionFromChatVC:(UIViewController *)chatViewController andWithMessage:(ALMessage *)alMessage
 {
     
-    [self.messagesViewDelegate handleProfileActionFromMsgVC: alMessage];
+    [self.messagesViewDelegate handleCustomActionFromMsgVC:chatViewController andWithMessage:alMessage];
     
 }
 
--(void)handleProfileActionFromChatVC:(ALMessage *)alMessage {
+-(void)handleProfileActionFromChatVC:(UIViewController *)chatViewController andWithMessage:(ALMessage *)alMessage
+{
     
-    [self.messagesViewDelegate handleProfileActionFromMsgVC:alMessage];
+    [self.messagesViewDelegate handleProfileActionFromChatVC:chatViewController andWithMessage:alMessage];
     
 }
 //==============================================================================================================================================
