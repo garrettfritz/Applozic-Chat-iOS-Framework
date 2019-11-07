@@ -241,7 +241,8 @@ ALSoundRecorderProtocol, ALCustomPickerDelegate,ALImageSendDelegate,UIDocumentPi
 {
     [super viewWillAppear:animated];
     self.isVisible = YES;
-    
+    [self.navigationController setNavigationBarHidden:NO animated:true];
+
     [[NSNotificationCenter defaultCenter]
      addObserver:self selector:@selector(newMessageHandler:) name:NEW_MESSAGE_NOTIFICATION  object:nil];
     
