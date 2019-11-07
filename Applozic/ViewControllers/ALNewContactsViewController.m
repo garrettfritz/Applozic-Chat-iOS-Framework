@@ -88,7 +88,8 @@
     
     self.contactList = [NSMutableArray new];
     [self handleFrameForOrientation];
-    
+    [self.contactsTableView setBackgroundColor:[UIColor whiteColor]];
+
     //    UIBarButtonItem *barButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"< Back" style:UIBarButtonItemStyleBordered target:self action:@selector(back:)];
     //    [self.navigationItem setLeftBarButtonItem:barButtonItem];
     
@@ -231,7 +232,7 @@
     }
     
     if(![ALApplozicSettings getGroupOption]){
-        [self.navigationItem setTitle:NSLocalizedStringWithDefaultValue(@"contactsTitile", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Contacts" , @"")];
+        [self.navigationItem setTitle:NSLocalizedStringWithDefaultValue(@"contactsTitle", [ALApplozicSettings getLocalizableName], [NSBundle mainBundle], @"Contacts" , @"")];
         [self.segmentControl setSelectedSegmentIndex:0];
         [self.segmentControl setHidden:YES];
     }

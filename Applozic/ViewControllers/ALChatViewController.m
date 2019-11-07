@@ -2715,12 +2715,13 @@ ALSoundRecorderProtocol, ALCustomPickerDelegate,ALImageSendDelegate,UIDocumentPi
         theMessage.fileMeta.name = [NSString stringWithFormat:@"%@-5-%@",self.contactIds, filePath.lastPathComponent];
     }
     
-    CFStringRef pathExtension = (__bridge_retained CFStringRef)[filePath pathExtension];
-    CFStringRef type = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExtension, NULL);
-    CFRelease(pathExtension);
-    NSString *mimeType = (__bridge_transfer NSString *)UTTypeCopyPreferredTagWithClass(type, kUTTagClassMIMEType);
-    
+    NSString *mimeType = [ALUtilityClass fileMIMEType:filePath];
+    if(!mimeType) {
+        return;
+    }
+
     theMessage.fileMeta.contentType = mimeType;
+
     if( theMessage.contentType == ALMESSAGE_CONTENT_VCARD)
     {
         theMessage.fileMeta.contentType = @"text/x-vcard";
@@ -2964,6 +2965,7 @@ ALSoundRecorderProtocol, ALCustomPickerDelegate,ALImageSendDelegate,UIDocumentPi
                 [self.navigationController pushViewController:launchChat animated:YES];
             } else {
                 ALBaseNavigationViewController *controller = [ALCustomPickerViewController makeInstanceWithDelegate:self];
+                controller.modalPresentationStyle = UIModalPresentationFullScreen;
                 [self presentViewController:controller animated:NO completion:nil];
             }
         }]];
@@ -3083,6 +3085,7 @@ ALSoundRecorderProtocol, ALCustomPickerDelegate,ALImageSendDelegate,UIDocumentPi
                 ALAudioAttachmentViewController *audioVC = (ALAudioAttachmentViewController *)[storyboard
                                                                                                instantiateViewControllerWithIdentifier:@"AudioAttachment"];
                 audioVC.audioAttchmentDelegate = self;
+                audioVC.modalPresentationStyle = UIModalPresentationFullScreen;
                 [self.navigationController pushViewController:audioVC animated:YES];
             }
             else
@@ -4603,7 +4606,7 @@ ALSoundRecorderProtocol, ALCustomPickerDelegate,ALImageSendDelegate,UIDocumentPi
     }
     
     ALMessageDBService* messageDBService = [[ALMessageDBService alloc]init];
-    [messageDBService updateMessageReplyType:message.key replyType:[NSNumber numberWithInt:AL_A_REPLY]];
+    [messageDBService updateMessageReplyType:message.key replyType:[NSNumber numberWithInt:AL_A_REPLY] hideFlag:NO];
     
 }
 
